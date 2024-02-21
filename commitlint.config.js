@@ -42,7 +42,7 @@ module.exports = {
         'feat', 'fix',
         'perf', 'refactor',
         'revert', 'style',
-        'test', 'hola'
+        'test'
       ]
     ],
     'subject-max-length': [2, 'always', 80],
