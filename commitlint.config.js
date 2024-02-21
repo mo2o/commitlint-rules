@@ -48,6 +48,6 @@ module.exports = {
     'subject-max-length': [2, 'always', 80],
     'subject-full-stop': [2, 'never', '.'],
     'subject-no-triple-dot': [2, 'never', '...'],
-    'task-ref-id': [2, "always"]
+    'task-ref-id': [1, "always"]
   },
 };
