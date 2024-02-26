@@ -2,13 +2,6 @@ module.exports = {
   plugins: [
     {
       rules: {
-        'subject-no-triple-dot': ( parsed ) => {                    
-          if (!parsed.subject) {
-            // console.log('Parsed:', parsed); // Imprimir el valor de subject
-            return [true, "No subject found, skipping validation"];
-          }
-          return [!parsed.subject.endsWith('.'), "subject may not end with full stop."];
-        },
         'task-ref-id': ({ subject }) => {
           if (!subject) {            
             return [true, "No subject found, skipping validation"];
@@ -23,31 +16,44 @@ module.exports = {
     }
   ],
   rules: {
-    'body-leading-blank': [1, 'always'],
+    'body-full-stop': [0, 'never', '.'],
+    'body-leading-blank': [2, 'always'],
+    'body-empty': [0, 'never'],
+/*rev*/'body-max-length': [2, 'always', Infinity],
     'body-max-line-length': [2, 'always', 100],
-    'footer-leading-blank': [1, 'always'],
+    'body-min-length': [2, 'always', 0],
+/*rev*/'body-case': [2, 'always', 'sentence-case'],
+    'footer-leading-blank': [2, 'always'],
+    'footer-empty': [0, 'never'],
+/*rev*/'footer-max-length': [2, 'always', Infinity],
     'footer-max-line-length': [2, 'always', 100],
+    'footer-min-length': [2, 'always', 0],
+    'header-case': [0, 'always', 'lower-case'],
+    'header-full-stop': [2, 'never', '.'],
     'header-max-length': [2, 'always', 100],
+    'header-min-length': [2, 'always', 0],
     'header-trim': [2, 'always'],
-    'subject-case': [2, 'always', ['sentence-case']],
+    'references-empty': [0, 'never'],
+/*rev*/'scope-enum': [2, 'always', []],
+    'scope-case': [2, 'always', 'lower-case'],
+/*rev*/'scope-empty': [0, 'never'],
+    'scope-max-length': [2, 'always', 10],
+    'scope-min-length': [2, 'always', 3],
+/*rev*/'subject-case': [2, 'always', ['sentence-case']],
     'subject-empty': [2, 'never'],
+    'subject-full-stop': [2, 'never', '.'],
+    'subject-max-length': [2, 'always', 70],
+    'subject-min-length': [2, 'always', 0],
+    'subject-exclamation-mark': [0, 'never'],
+    'type-enum': [2, 'always', ['build', 'chore', 'ci', 'docs', 'feat', 'fix', 'perf', 'refactor', 'revert', 'style', 'test']],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
-    'type-enum': [
-      2,
-      'always',
-      [
-        'build', 'chore',
-        'ci', 'docs',
-        'feat', 'fix',
-        'perf', 'refactor',
-        'revert', 'style',
-        'test'
-      ]
-    ],
-    'subject-max-length': [2, 'always', 80],
-    'subject-full-stop': [2, 'never', '.'],
-    'subject-no-triple-dot': [2, 'never', '...'],
-    'task-ref-id': [1, "always"]
+    'type-max-length': [2, 'always', Infinity],
+    'type-min-length': [2, 'always', 0],
+    'signed-off-by': [0, 'always', 'Signed-off-by:'],
+    'trailer-exists': [0, 'always', 'Signed-off-by:'],
+
+    //custom rules
+/*rev*/'task-ref-id': [1, "always"]
   },
 };
