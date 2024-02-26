@@ -1,14 +1,55 @@
 #!/bin/bash
 
-# Verify commitlint installation
-if ! command -v commitlint &> /dev/null; then
-    echo "Commitlint not found. Installing..."
-    npm install --global @commitlint/cli @commitlint/config-conventional
-fi
-
 # Get the commit message from the COMMIT_EDITMSG file
 commit_msg_file="$1"
 commit_msg=$(cat "$commit_msg_file")
 
-# Run commitlint on the commit message
-echo "$commit_msg" | commitlint --config ./commitlint-rules/commitlint.config.js
+
+possible_paths=(
+    "/usr/local/bin/commitlint"
+    "/usr/bin/commitlint"
+    "/opt/homebrew/bin/commitlint"
+)
+
+for path in "${possible_paths[@]}"; do
+    if [ -x "$path" ]; then
+        commitlint_path="$path"
+        break
+    fi
+done
+
+if [ -n "$commitlint_path" ]; then    
+    echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
+else
+    #Try to find commitlint in node path
+    user=$(basename "$HOME")
+    nvm_dir="/Users/$user/.nvm/versions/node"
+
+    find_commitlint() {        
+        if [ -x "$1/bin/commitlint" ]; then
+            commitlint_path="$1""bin/commitlint"            
+            return 0
+        else
+            return 1
+        fi
+    }
+
+    for node_version_dir in "$nvm_dir"/*/; do
+        if find_commitlint "$node_version_dir"; then            
+            source ~/.nvm/nvm.sh 
+            
+            node_version=$(node --version)
+
+            if [[ $node_version =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+                node_version="${BASH_REMATCH[1]}"                
+            fi
+
+            nvm use "$node_version"
+            echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
+            exit $?
+        fi
+    done
+
+    echo "CommitLint not found"
+    exit 1
+fi
