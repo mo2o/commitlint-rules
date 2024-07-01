@@ -4,7 +4,6 @@
 commit_msg_file="$1"
 commit_msg=$(cat "$commit_msg_file")
 
-
 possible_paths=(
     "/usr/local/bin/commitlint"
     "/usr/bin/commitlint"
@@ -21,35 +20,45 @@ done
 if [ -n "$commitlint_path" ]; then    
     echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
 else
-    #Try to find commitlint in node path
-    user=$(basename "$HOME")
-    nvm_dir="/Users/$user/.nvm/versions/node"
+    # Try to find commitlint in node system path
+    if [ -x "/c/Program Files/nodejs/commitlint" ]; then
+        commitlint_path="/c/Program Files/nodejs/commitlint"
+    fi
 
-    find_commitlint() {        
-        if [ -x "$1/bin/commitlint" ]; then
-            commitlint_path="$1""bin/commitlint"            
-            return 0
-        else
-            return 1
-        fi
-    }
+    if [ -n "$commitlint_path" ]; then
+        echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
+        exit $?
+    else
+        # Try to find commitlint in node path
+        user=$(basename "$HOME")
+        nvm_dir="/Users/$user/.nvm/versions/node"
 
-    for node_version_dir in "$nvm_dir"/*/; do
-        if find_commitlint "$node_version_dir"; then            
-            source ~/.nvm/nvm.sh 
-            
-            node_version=$(node --version)
-
-            if [[ $node_version =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-                node_version="${BASH_REMATCH[1]}"                
+        find_commitlint() {        
+            if [ -x "$1/bin/commitlint" ]; then
+                commitlint_path="$1""bin/commitlint"           
+                return 0
+            else
+                return 1
             fi
+        }
 
-            nvm use "$node_version"
-            echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
-            exit $?
-        fi
-    done
+        for node_version_dir in "$nvm_dir"/*/; do
+            if find_commitlint "$node_version_dir"; then            
+                source ~/.nvm/nvm.sh 
+                
+                node_version=$(node --version)
 
-    echo "CommitLint not found"
-    exit 1
+                if [[ $node_version =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+                    node_version="${BASH_REMATCH[1]}"                
+                fi
+
+                nvm use "$node_version"
+                echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
+                exit $?
+            fi
+        done
+
+        echo "CommitLint not found"
+        exit 1
+    fi
 fi
