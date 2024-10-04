@@ -8,6 +8,8 @@ possible_paths=(
     "/usr/local/bin/commitlint"
     "/usr/bin/commitlint"
     "/opt/homebrew/bin/commitlint"
+    "$APPDATA/npm/commitlint"
+    "$APPDATA/npm/commitlint.cmd"
 )
 
 for path in "${possible_paths[@]}"; do
@@ -17,7 +19,7 @@ for path in "${possible_paths[@]}"; do
     fi
 done
 
-if [ -n "$commitlint_path" ]; then    
+if [ -n "$commitlint_path" ]; then
     echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
 else
     # Try to find commitlint in node system path
@@ -32,7 +34,6 @@ else
         # Try to find commitlint in node path
         user=$(basename "$HOME")
         nvm_dir="/Users/$user/.nvm/versions/node"
-
         find_commitlint() {        
             if [ -x "$1/bin/commitlint" ]; then
                 commitlint_path="$1""bin/commitlint"           
@@ -43,17 +44,17 @@ else
         }
 
         for node_version_dir in "$nvm_dir"/*/; do
-            if find_commitlint "$node_version_dir"; then            
-                source ~/.nvm/nvm.sh 
-                
+            if find_commitlint "$node_version_dir"; then
+                source ~/.nvm/nvm.sh
+
                 node_version=$(node --version)
-
+                
                 if [[ $node_version =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-                    node_version="${BASH_REMATCH[1]}"                
+                    node_version="${BASH_REMATCH[1]}"
                 fi
-
+                
                 nvm use "$node_version"
-                echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js
+                echo "$commit_msg" | "$commitlint_path" --config ./commitlint-rules/commitlint.config.js                
                 exit $?
             fi
         done
